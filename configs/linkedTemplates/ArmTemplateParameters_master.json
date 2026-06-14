@@ -1,0 +1,27 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "factoryName": {
+            "value": "nycpayroll-adf-seb"
+        },
+        "LS_Datalake_accountKey": {
+            "value": ""
+        },
+        "LS_Datalake_properties_typeProperties_url": {
+            "value": "https://nycpayrollstorageseb.dfs.core.windows.net/"
+        },
+        "LS_SQLDatabase_properties_typeProperties_server": {
+            "value": "nycparolldatabase.database.windows.net"
+        },
+        "LS_SQLDatabase_properties_typeProperties_database": {
+            "value": "nyc-payroll-db"
+        },
+        "containerUri": {
+            "value": ""
+        },
+        "containerSasToken": {
+            "value": ""
+        }
+    }
+}

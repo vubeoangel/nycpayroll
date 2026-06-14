@@ -1,0 +1,90 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "factoryName": {
+            "type": "string",
+            "metadata": "Data Factory name",
+            "defaultValue": "nycpayroll-adf-seb"
+        },
+        "LS_Datalake_accountKey": {
+            "type": "secureString",
+            "metadata": "Secure string for 'accountKey' of 'LS_Datalake'"
+        },
+        "LS_Datalake_properties_typeProperties_url": {
+            "type": "string",
+            "defaultValue": "https://nycpayrollstorageseb.dfs.core.windows.net/"
+        },
+        "LS_SQLDatabase_properties_typeProperties_server": {
+            "type": "string",
+            "defaultValue": "nycparolldatabase.database.windows.net"
+        },
+        "LS_SQLDatabase_properties_typeProperties_database": {
+            "type": "string",
+            "defaultValue": "nyc-payroll-db"
+        },
+        "containerUri": {
+            "type": "string",
+            "metadata": "URI to storage account containing linked ARM templates"
+        },
+        "containerSasToken": {
+            "type": "string",
+            "metadata": "Sas token to storage account containing linked ARM templates"
+        }
+    },
+    "variables": {
+        "factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+    },
+    "resources": [
+        {
+            "name": "nycpayroll-adf-seb_ArmTemplate_0",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2024-03-01",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('containerUri'), '/ArmTemplate_0.json', parameters('containerSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "factoryName": {
+                        "value": "[parameters('factoryName')]"
+                    },
+                    "LS_Datalake_accountKey": {
+                        "value": "[parameters('LS_Datalake_accountKey')]"
+                    },
+                    "LS_Datalake_properties_typeProperties_url": {
+                        "value": "[parameters('LS_Datalake_properties_typeProperties_url')]"
+                    },
+                    "LS_SQLDatabase_properties_typeProperties_server": {
+                        "value": "[parameters('LS_SQLDatabase_properties_typeProperties_server')]"
+                    },
+                    "LS_SQLDatabase_properties_typeProperties_database": {
+                        "value": "[parameters('LS_SQLDatabase_properties_typeProperties_database')]"
+                    }
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "nycpayroll-adf-seb_ArmTemplate_1",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2024-03-01",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('containerUri'), '/ArmTemplate_1.json', parameters('containerSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "factoryName": {
+                        "value": "[parameters('factoryName')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'nycpayroll-adf-seb_ArmTemplate_0')]"
+            ]
+        }
+    ]
+}

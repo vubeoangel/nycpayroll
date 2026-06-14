@@ -1,0 +1,1246 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "factoryName": {
+            "type": "string",
+            "metadata": "Data Factory name",
+            "defaultValue": "nycpayroll-adf-seb"
+        },
+        "LS_Datalake_accountKey": {
+            "type": "secureString",
+            "metadata": "Secure string for 'accountKey' of 'LS_Datalake'"
+        },
+        "LS_Datalake_properties_typeProperties_url": {
+            "type": "string",
+            "defaultValue": "https://nycpayrollstorageseb.dfs.core.windows.net/"
+        },
+        "LS_SQLDatabase_properties_typeProperties_server": {
+            "type": "string",
+            "defaultValue": "nycparolldatabase.database.windows.net"
+        },
+        "LS_SQLDatabase_properties_typeProperties_database": {
+            "type": "string",
+            "defaultValue": "nyc-payroll-db"
+        }
+    },
+    "variables": {
+        "factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+    },
+    "resources": [
+        {
+            "name": "[concat(parameters('factoryName'), '/LS_Datalake')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzureBlobFS",
+                "typeProperties": {
+                    "url": "[parameters('LS_Datalake_properties_typeProperties_url')]",
+                    "accountKey": {
+                        "type": "SecureString",
+                        "value": "[parameters('LS_Datalake_accountKey')]"
+                    }
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/LS_SQLDatabase')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzureSqlDatabase",
+                "typeProperties": {
+                    "server": "[parameters('LS_SQLDatabase_properties_typeProperties_server')]",
+                    "database": "[parameters('LS_SQLDatabase_properties_typeProperties_database')]",
+                    "encrypt": "mandatory",
+                    "trustServerCertificate": false,
+                    "authenticationType": "SystemAssignedManagedIdentity"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/DS_Payroll2020')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "LS_Datalake",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "DelimitedText",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "fileName": "nycpayroll_2020.csv",
+                        "fileSystem": "raw-data"
+                    },
+                    "columnDelimiter": ",",
+                    "escapeChar": "\\",
+                    "firstRowAsHeader": true,
+                    "quoteChar": "\""
+                },
+                "schema": [
+                    {
+                        "name": "FiscalYear",
+                        "type": "String"
+                    },
+                    {
+                        "name": "PayrollNumber",
+                        "type": "String"
+                    },
+                    {
+                        "name": "AgencyID",
+                        "type": "String"
+                    },
+                    {
+                        "name": "AgencyName",
+                        "type": "String"
+                    },
+                    {
+                        "name": "EmployeeID",
+                        "type": "String"
+                    },
+                    {
+                        "name": "LastName",
+                        "type": "String"
+                    },
+                    {
+                        "name": "FirstName",
+                        "type": "String"
+                    },
+                    {
+                        "name": "AgencyStartDate",
+                        "type": "String"
+                    },
+                    {
+                        "name": "WorkLocationBorough",
+                        "type": "String"
+                    },
+                    {
+                        "name": "TitleCode",
+                        "type": "String"
+                    },
+                    {
+                        "name": "TitleDescription",
+                        "type": "String"
+                    },
+                    {
+                        "name": "LeaveStatusasofJune30",
+                        "type": "String"
+                    },
+                    {
+                        "name": "BaseSalary",
+                        "type": "String"
+                    },
+                    {
+                        "name": "PayBasis",
+                        "type": "String"
+                    },
+                    {
+                        "name": "RegularHours",
+                        "type": "String"
+                    },
+                    {
+                        "name": "RegularGrossPaid",
+                        "type": "String"
+                    },
+                    {
+                        "name": "OTHours",
+                        "type": "String"
+                    },
+                    {
+                        "name": "TotalOTPaid",
+                        "type": "String"
+                    },
+                    {
+                        "name": "TotalOtherPay",
+                        "type": "String"
+                    }
+                ]
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/LS_Datalake')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/DS_Payroll2021')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "LS_Datalake",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "DelimitedText",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "fileName": "nycpayroll_2021.csv",
+                        "fileSystem": "raw-data"
+                    },
+                    "columnDelimiter": ",",
+                    "escapeChar": "\\",
+                    "firstRowAsHeader": true,
+                    "quoteChar": "\""
+                },
+                "schema": [
+                    {
+                        "name": "FiscalYear",
+                        "type": "String"
+                    },
+                    {
+                        "name": "PayrollNumber",
+                        "type": "String"
+                    },
+                    {
+                        "name": "AgencyCode",
+                        "type": "String"
+                    },
+                    {
+                        "name": "AgencyName",
+                        "type": "String"
+                    },
+                    {
+                        "name": "EmployeeID",
+                        "type": "String"
+                    },
+                    {
+                        "name": "LastName",
+                        "type": "String"
+                    },
+                    {
+                        "name": "FirstName",
+                        "type": "String"
+                    },
+                    {
+                        "name": "AgencyStartDate",
+                        "type": "String"
+                    },
+                    {
+                        "name": "WorkLocationBorough",
+                        "type": "String"
+                    },
+                    {
+                        "name": "TitleCode",
+                        "type": "String"
+                    },
+                    {
+                        "name": "TitleDescription",
+                        "type": "String"
+                    },
+                    {
+                        "name": "LeaveStatusasofJune30",
+                        "type": "String"
+                    },
+                    {
+                        "name": "BaseSalary",
+                        "type": "String"
+                    },
+                    {
+                        "name": "PayBasis",
+                        "type": "String"
+                    },
+                    {
+                        "name": "RegularHours",
+                        "type": "String"
+                    },
+                    {
+                        "name": "RegularGrossPaid",
+                        "type": "String"
+                    },
+                    {
+                        "name": "OTHours",
+                        "type": "String"
+                    },
+                    {
+                        "name": "TotalOTPaid",
+                        "type": "String"
+                    },
+                    {
+                        "name": "TotalOtherPay",
+                        "type": "String"
+                    }
+                ]
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/LS_Datalake')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/DS_TitleMaster')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "LS_Datalake",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "DelimitedText",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "fileName": "TitleMaster.csv",
+                        "fileSystem": "raw-data"
+                    },
+                    "columnDelimiter": ",",
+                    "escapeChar": "\\",
+                    "firstRowAsHeader": true,
+                    "quoteChar": "\""
+                },
+                "schema": [
+                    {
+                        "name": "TitleCode",
+                        "type": "String"
+                    },
+                    {
+                        "name": "TitleDescription",
+                        "type": "String"
+                    }
+                ]
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/LS_Datalake')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/DS_EmpMaster')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "LS_Datalake",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "DelimitedText",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "fileName": "EmpMaster.csv",
+                        "fileSystem": "raw-data"
+                    },
+                    "columnDelimiter": ",",
+                    "escapeChar": "\\",
+                    "firstRowAsHeader": true,
+                    "quoteChar": "\""
+                },
+                "schema": [
+                    {
+                        "name": "EmployeeID",
+                        "type": "String"
+                    },
+                    {
+                        "name": "LastName",
+                        "type": "String"
+                    },
+                    {
+                        "name": "FirstName",
+                        "type": "String"
+                    }
+                ]
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/LS_Datalake')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/DS_AgencyMaster')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "LS_Datalake",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "DelimitedText",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "fileName": "AgencyMaster.csv",
+                        "fileSystem": "raw-data"
+                    },
+                    "columnDelimiter": ",",
+                    "escapeChar": "\\",
+                    "firstRowAsHeader": true,
+                    "quoteChar": "\""
+                },
+                "schema": [
+                    {
+                        "name": "AgencyID",
+                        "type": "String"
+                    },
+                    {
+                        "name": "AgencyName",
+                        "type": "String"
+                    }
+                ]
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/LS_Datalake')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/DS_Staging')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "LS_Datalake",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "Parquet",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "fileSystem": "staging"
+                    },
+                    "compressionCodec": "snappy"
+                },
+                "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/LS_Datalake')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/DS_SQL_AgencyMaster')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "LS_SQLDatabase",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [
+                    {
+                        "name": "AgencyID",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "AgencyName",
+                        "type": "varchar"
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "dbo",
+                    "table": "NYC_Payroll_AGENCY_MD"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/LS_SQLDatabase')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/DS_SQL_Payroll2020')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "LS_SQLDatabase",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [
+                    {
+                        "name": "FiscalYear",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "PayrollNumber",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "AgencyID",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "AgencyName",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "EmployeeID",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "LastName",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "FirstName",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "AgencyStartDate",
+                        "type": "date"
+                    },
+                    {
+                        "name": "WorkLocationBorough",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "TitleCode",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "TitleDescription",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "LeaveStatusasofJune30",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "BaseSalary",
+                        "type": "float",
+                        "precision": 15
+                    },
+                    {
+                        "name": "PayBasis",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "RegularHours",
+                        "type": "float",
+                        "precision": 15
+                    },
+                    {
+                        "name": "RegularGrossPaid",
+                        "type": "float",
+                        "precision": 15
+                    },
+                    {
+                        "name": "OTHours",
+                        "type": "float",
+                        "precision": 15
+                    },
+                    {
+                        "name": "TotalOTPaid",
+                        "type": "float",
+                        "precision": 15
+                    },
+                    {
+                        "name": "TotalOtherPay",
+                        "type": "float",
+                        "precision": 15
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "dbo",
+                    "table": "NYC_Payroll_Data_2020"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/LS_SQLDatabase')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/DS_SQL_TitleMaster')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "LS_SQLDatabase",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [
+                    {
+                        "name": "TitleCode",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "TitleDescription",
+                        "type": "varchar"
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "dbo",
+                    "table": "NYC_Payroll_TITLE_MD"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/LS_SQLDatabase')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/DS_SQL_Payroll2021')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "LS_SQLDatabase",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [
+                    {
+                        "name": "FiscalYear",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "PayrollNumber",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "AgencyID",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "AgencyName",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "EmployeeID",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "LastName",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "FirstName",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "AgencyStartDate",
+                        "type": "date"
+                    },
+                    {
+                        "name": "WorkLocationBorough",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "TitleCode",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "TitleDescription",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "LeaveStatusasofJune30",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "BaseSalary",
+                        "type": "float",
+                        "precision": 15
+                    },
+                    {
+                        "name": "PayBasis",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "RegularHours",
+                        "type": "float",
+                        "precision": 15
+                    },
+                    {
+                        "name": "RegularGrossPaid",
+                        "type": "float",
+                        "precision": 15
+                    },
+                    {
+                        "name": "OTHours",
+                        "type": "float",
+                        "precision": 15
+                    },
+                    {
+                        "name": "TotalOTPaid",
+                        "type": "float",
+                        "precision": 15
+                    },
+                    {
+                        "name": "TotalOtherPay",
+                        "type": "float",
+                        "precision": 15
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "dbo",
+                    "table": "NYC_Payroll_Data_2021"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/LS_SQLDatabase')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/DS_SQL_Summary')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "LS_SQLDatabase",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [
+                    {
+                        "name": "FiscalYear",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "AgencyName",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "TotalPaid",
+                        "type": "float",
+                        "precision": 15
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "dbo",
+                    "table": "NYC_Payroll_Summary"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/LS_SQLDatabase')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/DS_SQL_EmpMaster')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "LS_SQLDatabase",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [
+                    {
+                        "name": "EmployeeID",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "LastName",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "FirstName",
+                        "type": "varchar"
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "dbo",
+                    "table": "NYC_Payroll_EMP_MD"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/LS_SQLDatabase')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/DF_AgencyMaster')]",
+            "type": "Microsoft.DataFactory/factories/dataflows",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "type": "MappingDataFlow",
+                "typeProperties": {
+                    "sources": [
+                        {
+                            "dataset": {
+                                "referenceName": "DS_AgencyMaster",
+                                "type": "DatasetReference"
+                            },
+                            "name": "AgencyMaster"
+                        }
+                    ],
+                    "sinks": [
+                        {
+                            "dataset": {
+                                "referenceName": "DS_SQL_AgencyMaster",
+                                "type": "DatasetReference"
+                            },
+                            "name": "SQLAgencyMaster"
+                        }
+                    ],
+                    "transformations": [],
+                    "scriptLines": [
+                        "source(output(",
+                        "          AgencyID as string,",
+                        "          AgencyName as string",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     ignoreNoFilesFound: false) ~> AgencyMaster",
+                        "AgencyMaster sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          AgencyID as string,",
+                        "          AgencyName as string",
+                        "     ),",
+                        "     deletable:false,",
+                        "     insertable:true,",
+                        "     updateable:false,",
+                        "     upsertable:false,",
+                        "     truncate:true,",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     errorHandlingOption: 'stopOnFirstError') ~> SQLAgencyMaster"
+                    ]
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/datasets/DS_AgencyMaster')]",
+                "[concat(variables('factoryId'), '/datasets/DS_SQL_AgencyMaster')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/DF_EmpMaster')]",
+            "type": "Microsoft.DataFactory/factories/dataflows",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "type": "MappingDataFlow",
+                "typeProperties": {
+                    "sources": [
+                        {
+                            "dataset": {
+                                "referenceName": "DS_EmpMaster",
+                                "type": "DatasetReference"
+                            },
+                            "name": "EmpMaster"
+                        }
+                    ],
+                    "sinks": [
+                        {
+                            "dataset": {
+                                "referenceName": "DS_SQL_EmpMaster",
+                                "type": "DatasetReference"
+                            },
+                            "name": "SQLEmpMaster"
+                        }
+                    ],
+                    "transformations": [],
+                    "scriptLines": [
+                        "source(output(",
+                        "          EmployeeID as string,",
+                        "          LastName as string,",
+                        "          FirstName as string",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     ignoreNoFilesFound: false) ~> EmpMaster",
+                        "EmpMaster sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          EmployeeID as string,",
+                        "          LastName as string,",
+                        "          FirstName as string",
+                        "     ),",
+                        "     deletable:false,",
+                        "     insertable:true,",
+                        "     updateable:false,",
+                        "     upsertable:false,",
+                        "     truncate:true,",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     errorHandlingOption: 'stopOnFirstError') ~> SQLEmpMaster"
+                    ]
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/datasets/DS_EmpMaster')]",
+                "[concat(variables('factoryId'), '/datasets/DS_SQL_EmpMaster')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/DF_Payroll2020')]",
+            "type": "Microsoft.DataFactory/factories/dataflows",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "type": "MappingDataFlow",
+                "typeProperties": {
+                    "sources": [
+                        {
+                            "dataset": {
+                                "referenceName": "DS_Payroll2020",
+                                "type": "DatasetReference"
+                            },
+                            "name": "Payroll2020"
+                        }
+                    ],
+                    "sinks": [
+                        {
+                            "dataset": {
+                                "referenceName": "DS_SQL_Payroll2020",
+                                "type": "DatasetReference"
+                            },
+                            "name": "SQLPayroll2020"
+                        }
+                    ],
+                    "transformations": [],
+                    "scriptLines": [
+                        "source(output(",
+                        "          FiscalYear as string,",
+                        "          PayrollNumber as string,",
+                        "          AgencyID as string,",
+                        "          AgencyName as string,",
+                        "          EmployeeID as string,",
+                        "          LastName as string,",
+                        "          FirstName as string,",
+                        "          AgencyStartDate as string,",
+                        "          WorkLocationBorough as string,",
+                        "          TitleCode as string,",
+                        "          TitleDescription as string,",
+                        "          LeaveStatusasofJune30 as string,",
+                        "          BaseSalary as string,",
+                        "          PayBasis as string,",
+                        "          RegularHours as string,",
+                        "          RegularGrossPaid as string,",
+                        "          OTHours as string,",
+                        "          TotalOTPaid as string,",
+                        "          TotalOtherPay as string",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     ignoreNoFilesFound: false) ~> Payroll2020",
+                        "Payroll2020 sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          FiscalYear as integer,",
+                        "          PayrollNumber as integer,",
+                        "          AgencyID as string,",
+                        "          AgencyName as string,",
+                        "          EmployeeID as string,",
+                        "          LastName as string,",
+                        "          FirstName as string,",
+                        "          AgencyStartDate as date,",
+                        "          WorkLocationBorough as string,",
+                        "          TitleCode as string,",
+                        "          TitleDescription as string,",
+                        "          LeaveStatusasofJune30 as string,",
+                        "          BaseSalary as double,",
+                        "          PayBasis as string,",
+                        "          RegularHours as double,",
+                        "          RegularGrossPaid as double,",
+                        "          OTHours as double,",
+                        "          TotalOTPaid as double,",
+                        "          TotalOtherPay as double",
+                        "     ),",
+                        "     deletable:false,",
+                        "     insertable:true,",
+                        "     updateable:false,",
+                        "     upsertable:false,",
+                        "     truncate:true,",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     errorHandlingOption: 'stopOnFirstError') ~> SQLPayroll2020"
+                    ]
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/datasets/DS_Payroll2020')]",
+                "[concat(variables('factoryId'), '/datasets/DS_SQL_Payroll2020')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/DF_TitleMaster')]",
+            "type": "Microsoft.DataFactory/factories/dataflows",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "type": "MappingDataFlow",
+                "typeProperties": {
+                    "sources": [
+                        {
+                            "dataset": {
+                                "referenceName": "DS_TitleMaster",
+                                "type": "DatasetReference"
+                            },
+                            "name": "TitleMaster"
+                        }
+                    ],
+                    "sinks": [
+                        {
+                            "dataset": {
+                                "referenceName": "DS_SQL_TitleMaster",
+                                "type": "DatasetReference"
+                            },
+                            "name": "SQLTitleMaster"
+                        }
+                    ],
+                    "transformations": [],
+                    "scriptLines": [
+                        "source(output(",
+                        "          TitleCode as string,",
+                        "          TitleDescription as string",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     ignoreNoFilesFound: false) ~> TitleMaster",
+                        "TitleMaster sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          TitleCode as string,",
+                        "          TitleDescription as string",
+                        "     ),",
+                        "     deletable:false,",
+                        "     insertable:true,",
+                        "     updateable:false,",
+                        "     upsertable:false,",
+                        "     truncate:true,",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     errorHandlingOption: 'stopOnFirstError') ~> SQLTitleMaster"
+                    ]
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/datasets/DS_TitleMaster')]",
+                "[concat(variables('factoryId'), '/datasets/DS_SQL_TitleMaster')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/DF_Payroll2021')]",
+            "type": "Microsoft.DataFactory/factories/dataflows",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "type": "MappingDataFlow",
+                "typeProperties": {
+                    "sources": [
+                        {
+                            "dataset": {
+                                "referenceName": "DS_Payroll2021",
+                                "type": "DatasetReference"
+                            },
+                            "name": "Payroll2021"
+                        }
+                    ],
+                    "sinks": [
+                        {
+                            "dataset": {
+                                "referenceName": "DS_SQL_Payroll2021",
+                                "type": "DatasetReference"
+                            },
+                            "name": "SQLPayroll2021"
+                        }
+                    ],
+                    "transformations": [],
+                    "scriptLines": [
+                        "source(output(",
+                        "          FiscalYear as string,",
+                        "          PayrollNumber as string,",
+                        "          AgencyCode as string,",
+                        "          AgencyName as string,",
+                        "          EmployeeID as string,",
+                        "          LastName as string,",
+                        "          FirstName as string,",
+                        "          AgencyStartDate as string,",
+                        "          WorkLocationBorough as string,",
+                        "          TitleCode as string,",
+                        "          TitleDescription as string,",
+                        "          LeaveStatusasofJune30 as string,",
+                        "          BaseSalary as string,",
+                        "          PayBasis as string,",
+                        "          RegularHours as string,",
+                        "          RegularGrossPaid as string,",
+                        "          OTHours as string,",
+                        "          TotalOTPaid as string,",
+                        "          TotalOtherPay as string",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     ignoreNoFilesFound: false) ~> Payroll2021",
+                        "Payroll2021 sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          FiscalYear as integer,",
+                        "          PayrollNumber as integer,",
+                        "          AgencyID as string,",
+                        "          AgencyName as string,",
+                        "          EmployeeID as string,",
+                        "          LastName as string,",
+                        "          FirstName as string,",
+                        "          AgencyStartDate as date,",
+                        "          WorkLocationBorough as string,",
+                        "          TitleCode as string,",
+                        "          TitleDescription as string,",
+                        "          LeaveStatusasofJune30 as string,",
+                        "          BaseSalary as double,",
+                        "          PayBasis as string,",
+                        "          RegularHours as double,",
+                        "          RegularGrossPaid as double,",
+                        "          OTHours as double,",
+                        "          TotalOTPaid as double,",
+                        "          TotalOtherPay as double",
+                        "     ),",
+                        "     deletable:false,",
+                        "     insertable:true,",
+                        "     updateable:false,",
+                        "     upsertable:false,",
+                        "     truncate:true,",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     errorHandlingOption: 'stopOnFirstError') ~> SQLPayroll2021"
+                    ]
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/datasets/DS_Payroll2021')]",
+                "[concat(variables('factoryId'), '/datasets/DS_SQL_Payroll2021')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/DF_PayrollSummary')]",
+            "type": "Microsoft.DataFactory/factories/dataflows",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "type": "MappingDataFlow",
+                "typeProperties": {
+                    "sources": [
+                        {
+                            "dataset": {
+                                "referenceName": "DS_Payroll2020",
+                                "type": "DatasetReference"
+                            },
+                            "name": "Payroll2020"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "DS_Payroll2021",
+                                "type": "DatasetReference"
+                            },
+                            "name": "Payroll2021"
+                        }
+                    ],
+                    "sinks": [
+                        {
+                            "dataset": {
+                                "referenceName": "DS_SQL_Summary",
+                                "type": "DatasetReference"
+                            },
+                            "name": "SinkSQLSummary"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "DS_Staging",
+                                "type": "DatasetReference"
+                            },
+                            "name": "SinkStaging"
+                        }
+                    ],
+                    "transformations": [
+                        {
+                            "name": "UnionPayroll"
+                        },
+                        {
+                            "name": "AggregatePayroll"
+                        }
+                    ],
+                    "scriptLines": [
+                        "source(output(",
+                        "          FiscalYear as string,",
+                        "          PayrollNumber as string,",
+                        "          AgencyID as string,",
+                        "          AgencyName as string,",
+                        "          EmployeeID as string,",
+                        "          LastName as string,",
+                        "          FirstName as string,",
+                        "          AgencyStartDate as string,",
+                        "          WorkLocationBorough as string,",
+                        "          TitleCode as string,",
+                        "          TitleDescription as string,",
+                        "          LeaveStatusasofJune30 as string,",
+                        "          BaseSalary as string,",
+                        "          PayBasis as string,",
+                        "          RegularHours as string,",
+                        "          RegularGrossPaid as string,",
+                        "          OTHours as string,",
+                        "          TotalOTPaid as string,",
+                        "          TotalOtherPay as string",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     ignoreNoFilesFound: false) ~> Payroll2020",
+                        "source(output(",
+                        "          FiscalYear as string,",
+                        "          PayrollNumber as string,",
+                        "          AgencyCode as string,",
+                        "          AgencyName as string,",
+                        "          EmployeeID as string,",
+                        "          LastName as string,",
+                        "          FirstName as string,",
+                        "          AgencyStartDate as string,",
+                        "          WorkLocationBorough as string,",
+                        "          TitleCode as string,",
+                        "          TitleDescription as string,",
+                        "          LeaveStatusasofJune30 as string,",
+                        "          BaseSalary as string,",
+                        "          PayBasis as string,",
+                        "          RegularHours as string,",
+                        "          RegularGrossPaid as string,",
+                        "          OTHours as string,",
+                        "          TotalOTPaid as string,",
+                        "          TotalOtherPay as string",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     ignoreNoFilesFound: false) ~> Payroll2021",
+                        "Payroll2020, Payroll2021 union(byName: true)~> UnionPayroll",
+                        "UnionPayroll aggregate(groupBy(AgencyName,",
+                        "          FiscalYear),",
+                        "     TotalPaid = sum(toDouble(BaseSalary) + toDouble(RegularGrossPaid) + toDouble(TotalOTPaid) + toDouble(TotalOtherPay))) ~> AggregatePayroll",
+                        "AggregatePayroll sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          FiscalYear as integer,",
+                        "          AgencyName as string,",
+                        "          TotalPaid as double",
+                        "     ),",
+                        "     deletable:false,",
+                        "     insertable:true,",
+                        "     updateable:false,",
+                        "     upsertable:false,",
+                        "     truncate:true,",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     errorHandlingOption: 'stopOnFirstError') ~> SinkSQLSummary",
+                        "AggregatePayroll sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     format: 'parquet',",
+                        "     umask: 0022,",
+                        "     preCommands: [],",
+                        "     postCommands: [],",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true) ~> SinkStaging"
+                    ]
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/datasets/DS_Payroll2020')]",
+                "[concat(variables('factoryId'), '/datasets/DS_Payroll2021')]",
+                "[concat(variables('factoryId'), '/datasets/DS_SQL_Summary')]",
+                "[concat(variables('factoryId'), '/datasets/DS_Staging')]"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,9 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Credentials (never commit these)
+*.env
+.env*
+secrets.json
