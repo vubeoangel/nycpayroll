@@ -8,6 +8,8 @@ An end-to-end cloud data engineering pipeline built on **Microsoft Azure**, demo
 
 ## Architecture
 
+![System Architecture](resources/system_architecture.png)
+
 ```
 [Raw CSV Files — 5 sources]
   AgencyMaster | EmpMaster | TitleMaster | Payroll2020 | Payroll2021
@@ -185,6 +187,15 @@ SELECT * FROM NYC_Payroll_Summary_Ext ORDER BY FiscalYear, AgencyName;
 | ![Pipeline Run](resources/Screenshot%202026-06-14%20at%203.04.07%20pm.png) | Pipeline run — all activities succeeded |
 | ![SQL Results](resources/Screenshot%202026-06-14%20at%203.24.41%20pm.png) | SQL DB query — NYC_Payroll_Summary |
 | ![Row Counts](resources/Screenshot%202026-06-14%20at%203.24.52%20pm.png) | Row count verification |
+| ![Synapse Query](resources/Screenshot%202026-06-14%20at%203.55.55%20pm.png) | Synapse CETAS external table query output |
+
+---
+
+## Insights
+
+- **Office of Emergency Management** had the highest total payout in FY2020 at **$11.07M**, more than double the next agency (Office of Management & Budget, $5.02M) — reflecting elevated overtime/emergency staffing costs during that fiscal year.
+- FY2021 spend was spread across smaller agencies (Board of Election, Campaign Finance Board, Police Department), each well under $500K in this sample — suggesting the dataset slice covers a different, lower-volume set of agencies than FY2020.
+- The aggregation pipeline confirms `TotalPaid = BaseSalary + RegularGrossPaid + TotalOTPaid + TotalOtherPay`, making it straightforward to extend the model with an `OvertimeRatio` metric (`TotalOTPaid / TotalPaid`) per agency for future overtime-hotspot analysis.
 
 ---
 
